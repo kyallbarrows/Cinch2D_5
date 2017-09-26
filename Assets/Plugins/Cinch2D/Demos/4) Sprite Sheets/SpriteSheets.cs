@@ -32,6 +32,8 @@ public class SpriteSheets : DemoBase {
 				var top = suit * cardHeight;	//move top to bottom 128 px at a time
 				var pixPerMeter = 100f;		
 				
+//				CinchOptions.UseTopLeftSpriteSheetCoordinates = false;
+
 				var newCard = CinchSprite.NewFromSpriteSheet("Cinch2D/PlayingCards", left, top, cardWidth, cardHeight, pixPerMeter);
 				_cardsContainer.AddChild(newCard);
 				
@@ -39,6 +41,8 @@ public class SpriteSheets : DemoBase {
 				newCard.X = ViewportWidth * Random.Range(-.4f, .4f);
 				newCard.Y = ViewportHeight * Random.Range(-.4f, .4f);
 				newCard.RotationDegrees = Random.Range (-45f, 45f);
+
+				Debug.Log("New Card: " + newCard.X + "  " + newCard.Y + "  " + newCard.RotationDegrees);
 			}
 		}
 	}

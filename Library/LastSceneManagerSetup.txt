@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Plugins/Cinch2D/Demos/7) Text Fields/TextFields.unity
+- path: Assets/Plugins/Cinch2D/Demos/9) Physics/Physics.unity
   isLoaded: 1
   isActive: 1

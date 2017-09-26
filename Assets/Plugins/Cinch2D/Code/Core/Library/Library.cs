@@ -26,7 +26,7 @@ namespace Cinch2D
 		/// <summary>
 		/// Event dispatched when any mouse event occurs
 		/// </summary>
-		public RegistrationPoint RegistrationPoint;
+		public Vector2? RegistrationPoint;
 		/// <summary>
 		/// Left side of the texture rectangle, if any
 		/// </summary>
@@ -126,7 +126,7 @@ namespace Cinch2D
 			{
 			case SymbolDef.IMAGE_SPRITE_OBJECT:
 				CinchSprite spr;
-				if (sd.Width == 0)
+				if (sd.Width == 0f)
 				{
 					spr = CinchSprite.NewFromImage(sd.TexturePath, sd.PixelsPerMeter, sd.RegistrationPoint);
 					spr.Name = name;
@@ -172,7 +172,7 @@ namespace Cinch2D
 		/// <param name='registrationPoint'>
 		/// Registration point.
 		/// </param>
-		public static SymbolDef AddImageSpriteDefinition(string classId, string texturePath, RegistrationPoint? registrationPoint = null)
+		public static SymbolDef AddImageSpriteDefinition(string classId, string texturePath, Vector2? registrationPoint = null)
 		{
 			return AddImageSpriteDefinition(classId, texturePath, null, registrationPoint);
 		}
@@ -195,7 +195,7 @@ namespace Cinch2D
 		/// <param name='registrationPoint'>
 		/// Registration point of the definition.  Defaults to center.
 		/// </param>
-		public static SymbolDef AddImageSpriteDefinition(string classId, string texturePath, Rect? spriteArea, RegistrationPoint? registrationPoint = null)
+		public static SymbolDef AddImageSpriteDefinition(string classId, string texturePath, Rect? spriteArea, Vector2? registrationPoint = null)
 		{
 			var sd = new SymbolDef();
 			sd.SymbolId = classId;
@@ -206,7 +206,7 @@ namespace Cinch2D
 			sd.Top = sa.y;
 			sd.Width = sa.width;
 			sd.Height = sa.height;
-			sd.RegistrationPoint = registrationPoint.GetValueOrDefault(RegistrationPoint.Center);
+			sd.RegistrationPoint = registrationPoint ?? RegistrationPoint.Center;
 			Instance.__AddDefinition(sd);
 			return sd;
 		}

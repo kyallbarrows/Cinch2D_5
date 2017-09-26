@@ -472,7 +472,9 @@ namespace Cinch2D
 				
 				TransformColliderMesh();
 			}
-			
+
+			Debug.Log("Update mesh " + this.Name);			
+
 			foreach(var c in _children)
 				c.__UpdateMesh();
 		}

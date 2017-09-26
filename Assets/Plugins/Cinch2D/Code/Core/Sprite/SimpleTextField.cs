@@ -218,9 +218,9 @@ namespace Cinch2D
 			
 			var horizCenterLine = _fontMedian * _fontScale;
 			if (_textAnchor == TextAnchor.LowerLeft || _textAnchor == TextAnchor.LowerCenter || _textAnchor == TextAnchor.LowerRight)
-				horizCenterLine = _fontCapHeight * _fontScale;
-			else if (_textAnchor == TextAnchor.UpperLeft || _textAnchor == TextAnchor.UpperCenter || _textAnchor == TextAnchor.UpperRight)
 				horizCenterLine = _fontBaseline * _fontScale;
+			else if (_textAnchor == TextAnchor.UpperLeft || _textAnchor == TextAnchor.UpperCenter || _textAnchor == TextAnchor.UpperRight)
+				horizCenterLine = _fontCapHeight * _fontScale;
 			
 			var vertices = new List<Vector3>();
 			var uv = new List<Vector2>();
