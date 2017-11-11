@@ -3,18 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-using FarseerPhysics.Dynamics;
 
 namespace Cinch2D
 {
 	/*! Basically a draggable DisplayObjectContainer, with some setup methods for initinalizing from a texture.  Also, easier to type, so, bonus. */
 	public class CinchSprite : DisplayObjectContainer {
-		
-		/// <summary>
-		/// The Farseer Physics Body.  If set, and the Sprite is added to a physics container, it will control the position and rotation of the Sprite.
-		/// </summary>
-		public Body PhysicsBody;
-		
+				
 		protected bool _dragging = false;
 		protected Vector2 _dragCenter;
 		
@@ -52,10 +46,6 @@ namespace Cinch2D
 			{
 				var offset = Parent.GlobalToLocal(new Vector2(Stage.Instance.MouseX, Stage.Instance.MouseY));
 				SetPosition(offset.x - _dragCenter.x, offset.y - _dragCenter.y);
-			}
-			else if (PhysicsBody != null)
-			{
-				SetPosition(PhysicsBody.Position.x, PhysicsBody.Position.y, PhysicsBody.Rotation);
 			}
 		}
 		
@@ -390,8 +380,6 @@ namespace Cinch2D
 			get{return _x;} 
 			set{
 				_x = value; 
-				if (PhysicsBody != null)
-					PhysicsBody.Position = new Vector2(_x, _y);
 				
 				__UpdateMesh(); 
 				NotifyParentMeshInvalid();
@@ -400,20 +388,12 @@ namespace Cinch2D
 			get{return _y;} 
 			set{
 				_y = value; 
-				if (PhysicsBody != null)
-					PhysicsBody.Position = new Vector2(_x, _y);
 				
 				__UpdateMesh(); 
 				NotifyParentMeshInvalid();
 			}}
 		public override void SetPosition (float x, float y, float rotation)
 		{
-			if (PhysicsBody != null)
-			{
-				PhysicsBody.Position = new Vector2(x, y);
-				PhysicsBody.Rotation = rotation;
-			}
-			
 			base.SetPosition (x, y, rotation);
 		}
 		
@@ -421,8 +401,6 @@ namespace Cinch2D
 			get { return _rotation; }
 			set { 
 				_rotation = value; 
-				if (PhysicsBody != null)
-					PhysicsBody.Rotation = value;
 				
 				__UpdateMesh();
 				NotifyParentMeshInvalid();
