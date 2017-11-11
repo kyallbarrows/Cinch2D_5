@@ -67,7 +67,6 @@
      <Compile Include="Assets\Plugins\Cinch2D\Code\Core\Util\Tween.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Code\Core\Util\TweenRunner.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\1) Using the Stage\UsingTheStage.cs" />
-     <Compile Include="Assets\Plugins\Cinch2D\Demos\10) 9-Slice Scaling\NineSliceScaling.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\2) Working with Sprites\SmartCherry.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\2) Working with Sprites\WorkingWithSprites.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\3) Mouse Events\MouseEventsStage.cs" />
@@ -79,6 +78,7 @@
      <Compile Include="Assets\Plugins\Cinch2D\Demos\7) Text Fields\TextFields.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\8) Switching to 3D Camera\SwitchingCamera.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\8) Switching to 3D Camera\Teapot.cs" />
+     <Compile Include="Assets\Plugins\Cinch2D\Demos\9) 9-Slice Scaling\NineSliceScaling.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\DemoBase.cs" />
      <Compile Include="Assets\Plugins\Cinch2D\Demos\TextButton.cs" />
      <None Include="Assets\Plugins\Cinch2D\Resources\Shaders\Blackline.shader" />
