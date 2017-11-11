@@ -460,26 +460,20 @@ namespace Cinch2D
 			if (!Visible || !__ParentVisible)
 				return;
 			
-			__LocalTransformMatrix = Matrix4x4.TRS(new Vector3(_x, _y, 0), Quaternion.AngleAxis(_rotation * Mathf.Rad2Deg, Vector3.forward), new Vector3(_scaleX, _scaleY, 1f));
+			__LocalTransformMatrix = Matrix4x4.TRS(new Vector3(_x, _y, _z), Quaternion.AngleAxis(_rotation * Mathf.Rad2Deg, Vector3.forward), new Vector3(_scaleX, _scaleY, 1f));
 			__GlobalTransformMatrix = __GetGlobalTransform();
 			
-			if (_meshFilter != null && _originalMesh != null){
-				var meshCombine = new CombineInstance[1];
-		        meshCombine[0].mesh = _originalMesh;
-		        meshCombine[0].transform = __GlobalTransformMatrix;
-		        _transformedMesh.CombineMeshes(meshCombine);
-				_meshFilter.sharedMesh = _transformedMesh;
-				
-				TransformColliderMesh();
-			}
-
-			Debug.Log("Update mesh " + this.Name);			
+			HandleMeshTransform(__GlobalTransformMatrix);
+			TransformColliderMesh();
 
 			foreach(var c in _children)
 				c.__UpdateMesh();
 		}
+
+		protected virtual void HandleMeshTransform(Matrix4x4 transform){
+		}
 		
-		private void TransformColliderMesh()
+		protected void TransformColliderMesh()
 		{
 			if (_originalHitAreaMesh != null)
 			{
@@ -737,7 +731,7 @@ namespace Cinch2D
 		/// The z (depth).
 		/// </value>
 		public virtual float Z { get { 
-				return gameObject.transform.position.z; }}
+				return _z; }}
 		
 		public DisplayObjectContainer()
 		{
@@ -787,7 +781,19 @@ namespace Cinch2D
 			
 	//		Destroy(gameObject);
 		}	
-		
+
+		protected int _childCount = 0;	
+
+		public int __UpdateChildCount(){
+			int childCount = _children.Count;
+			for (int i=0; i<_children.Count; i++){
+				childCount += _children[i].__UpdateChildCount();
+			}	
+
+			_childCount = childCount;
+			return childCount;
+		}
+
 		protected void AddChildInternal(DisplayObjectContainer child)
 		{
 			if (child == null)
@@ -799,7 +805,6 @@ namespace Cinch2D
 			child.__SetParent(this);
 			SetAsTransformChild(child.gameObject);
 			__ChildrenUpdated = true;
-			child.__UpdateMesh();		
 		}
 		
 		protected virtual void SetAsTransformChild(GameObject go)
@@ -1119,17 +1124,18 @@ namespace Cinch2D
 		//if this is set true, need to re-order everything
 		public static bool __ChildrenUpdated;
 		
-		public float __OrderChildren()
+		public void __OrderChildren(ref float startAt)
 		{
-			var subtreeThickness = CinchOptions.LayerSpacing;
+			Debug.Log("__OrderChildren " + startAt + "   " + this.Name);
+			_z = startAt;
+			__UpdateMesh();
+
+			startAt -= CinchOptions.LayerSpacing;
 			
-			for (var i=0; i<_children.Count; i++)
+			for (int i=0; i<_children.Count; i++)
 			{
-				_children[i].gameObject.transform.localPosition = new Vector3(0, 0, -1 * subtreeThickness);
-				subtreeThickness += _children[i].__OrderChildren();
+				_children[i].__OrderChildren(ref startAt);
 			}
-			
-			return subtreeThickness;
 		}
 		
 		public bool __Level1HitTest(Vector2 p)

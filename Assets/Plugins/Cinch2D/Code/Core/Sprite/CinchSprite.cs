@@ -120,6 +120,7 @@ namespace Cinch2D
 		protected void InitFromImage (string texturePath, float pixelsPerMeter, Vector2? regPoint = null, Rect? rect = null)
 		{
 			_spriteRenderer = gameObject.AddComponent<SpriteRenderer> ();
+
 			_texture = TextureCache.GetCachedTexture (texturePath);
 			_sprite = Sprite.Create (_texture, 
 			                         rect ?? new Rect (0, 0, _texture.width-1, _texture.height-1), 
@@ -219,6 +220,31 @@ namespace Cinch2D
 				__UpdateMesh();
 				NotifyParentMeshInvalid();
 			}
-		}	
+		}
+
+		protected override void HandleMeshTransform(Matrix4x4 matrix){
+			gameObject.transform.position = ExtractPosition(matrix);
+			gameObject.transform.localScale = ExtractScale(matrix);
+//			_spriteRenderer.transform.position = transform.MultiplyPoint3x4(new Vector3(0, 0, 0));
+//			Debug.Log("HandleMeshTransform " + _z);
+		}
+	
+		private Vector3 ExtractPosition(Matrix4x4 matrix)
+	    {
+	        Vector3 position;
+	        position.x = matrix.m03;
+	        position.y = matrix.m13;
+	        position.z = _z;
+	        return position;
+	    }
+
+		private Vector3 ExtractScale(Matrix4x4 matrix)
+	    {
+	        Vector3 scale;
+	        scale.x = new Vector4(matrix.m00, matrix.m10, matrix.m20, matrix.m30).magnitude;
+	        scale.y = new Vector4(matrix.m01, matrix.m11, matrix.m21, matrix.m31).magnitude;
+	        scale.z = new Vector4(matrix.m02, matrix.m12, matrix.m22, matrix.m32).magnitude;
+	        return scale;
+	    }
 	}
 }

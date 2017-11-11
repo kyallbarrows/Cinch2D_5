@@ -339,6 +339,15 @@ namespace Cinch2D
 			get {	return base.Height; }
 			set {	base.Height = value; }
 		}
-		
+
+		protected override void HandleMeshTransform(Matrix4x4 transform){
+			if (_meshFilter != null && _originalMesh != null){
+				var meshCombine = new CombineInstance[1];
+		        meshCombine[0].mesh = _originalMesh;
+		        meshCombine[0].transform = transform;
+		        _transformedMesh.CombineMeshes(meshCombine);
+				_meshFilter.sharedMesh = _transformedMesh;
+			}
+		}
 	}
 }

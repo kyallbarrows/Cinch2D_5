@@ -138,8 +138,10 @@ namespace Cinch2D
 			if (DisplayObjectContainer.__ChildrenUpdated)
 			{
 				DisplayObjectContainer.__ChildrenUpdated = false;
-				var totalDepth = __OrderChildren();
-				_holder.transform.position = new Vector3(0, 0, totalDepth + CinchOptions.CameraObjectGap);
+				__UpdateChildCount();
+				float orderStart = _childCount + 1f;
+				Debug.Log("Stage child count: " + _childCount);
+				__OrderChildren(ref orderStart);
 				
 				MouseInput.Instance.__SortMouseEnabledObjects();
 			}

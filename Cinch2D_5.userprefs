@@ -1,8 +1,15 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Plugins/Cinch2D/Demos/1) Using the Stage/UsingTheStage.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Plugins/Cinch2D/Code/Core/Sprite/DisplayObjectContainer.cs">
     <Files>
-      <File FileName="Assets/Plugins/Cinch2D/Demos/1) Using the Stage/UsingTheStage.cs" Line="32" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Demos/2) Working with Sprites/WorkingWithSprites.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Demos/10) 9-Slice Scaling/NineSliceScaling.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Demos/3) Mouse Events/MouseEventsStage.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Demos/7) Text Fields/TextFields.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Code/Core/Sprite/DisplayObjectContainer.cs" Line="1146" Column="3" />
+      <File FileName="Assets/Plugins/Cinch2D/Code/Core/Sprite/CinchSprite.cs" Line="229" Column="3" />
+      <File FileName="Assets/Plugins/Cinch2D/Code/Core/Sprite/SimpleTextField.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Cinch2D/Code/Core/Scene/Stage.cs" Line="142" Column="40" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

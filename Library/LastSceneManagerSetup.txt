@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Plugins/Cinch2D/Demos/9) Physics/Physics.unity
+- path: Assets/Plugins/Cinch2D/Demos/2) Working with Sprites/WorkingWithSprites.unity
   isLoaded: 1
   isActive: 1
