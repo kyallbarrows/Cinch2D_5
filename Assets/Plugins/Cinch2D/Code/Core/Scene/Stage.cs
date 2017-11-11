@@ -21,6 +21,9 @@ namespace Cinch2D
 			}
 		}	
 		
+		public const int Layer2D = 31;
+		public const int Layer3D = 30;
+
 		/// <summary>
 		/// Core method.  Calling this could produce very bad results.
 		/// </summary>
@@ -30,7 +33,8 @@ namespace Cinch2D
 			{
 				_camera.transform.position = new Vector3(_camera.transform.position.x, _camera.transform.position.y, CinchOptions.CameraPos);
 				_camera.cullingMask = ~(CinchOptions.CinchLayer);
-				_camera.farClipPlane = CinchOptions.CameraPos + 16000;		
+				_camera.farClipPlane = CinchOptions.CameraPos + 16000;
+				_camera.depth = 2;		
 			}		
 		}
 		
@@ -50,6 +54,24 @@ namespace Cinch2D
 			go.transform.parent = _holder.transform;
 		}
 		
+
+		protected GameObject _root3D;
+		/// <summary>
+		/// Gets the 3D stage root.  This is where you can add 3d game objects, lights, particles, etc.
+		/// </summary>
+		/// <value>
+		/// The 3D root.
+		/// </value>
+		public GameObject Root3D{ get { return _root3D;}}
+
+		protected Camera _camera3D;
+		/// <summary>
+		/// Gets the 3D camera.
+		/// </summary>
+		/// <value>
+		/// The 3D camera.
+		/// </value>
+		public Camera Camera3D{ get { return _camera3D; } }
 		
 		//the position of the stage relative to the camera.  FLash lower left corner is 0, 0.  Unity lower left is 0 - viewport(width/height)/2
 		protected Vector2 _stageOffset;
@@ -112,6 +134,13 @@ namespace Cinch2D
 			
 			var tweenRunner = gameObject.AddComponent<TweenRunner>();
 			tweenRunner.__Init (_clock);
+
+			_root3D = new GameObject("Root3D");
+			GameObject cameraObject = new GameObject("Camera3DHolderGameObject");
+			_camera3D = cameraObject.AddComponent<Camera>() as Camera;
+			_camera3D.name = "Camera3DCamera";
+			_camera3D.cullingMask &=  ~(1 << CinchOptions.CinchLayer);
+			cameraObject.transform.parent = _root3D.transform;
 		}
 		
 		public void Start()
@@ -138,10 +167,8 @@ namespace Cinch2D
 			if (DisplayObjectContainer.__ChildrenUpdated)
 			{
 				DisplayObjectContainer.__ChildrenUpdated = false;
-				__UpdateChildCount();
-				float orderStart = _childCount + 1f;
-				Debug.Log("Stage child count: " + _childCount);
-				__OrderChildren(ref orderStart);
+				var totalDepth = __OrderChildren();
+				_holder.transform.position = new Vector3(0, 0, totalDepth + CinchOptions.CameraObjectGap);
 				
 				MouseInput.Instance.__SortMouseEnabledObjects();
 			}

@@ -9,7 +9,6 @@ using Cinch2D;
 public class SwitchingCamera : Stage {
 	
 	private GameObject _gameplayContainer;
-	private Camera _camera3D;
 	private GameObject _teapot;
 	private Light _light;
 	
@@ -27,6 +26,12 @@ public class SwitchingCamera : Stage {
 		var silliness = SimpleTextField.NewFromString("CHOO CHOO IT\'S THE TEAPOT TRAIN.", "Cinch2D/FjallaOne-Regular", .5f, TextAnchor.UpperCenter);
 		AddChild(silliness);
 		silliness.Y =  1.5f;
+
+		GameObject teapot = Instantiate(Resources.Load("Cinch2D/Teapot", typeof(GameObject))) as GameObject;
+		teapot.AddComponent<Teapot>();
+		teapot.transform.localScale = new Vector3(.0001f, .0001f, .0001f);
+				teapot.transform.position = new Vector3(0, 0, 5);
+		//teapot.transform.parent = Root3D.transform;
 		
 		//if you need to hide all the Cinch stuff entirely, you can use Stage.Disable() and Stage.Enable();
 	}

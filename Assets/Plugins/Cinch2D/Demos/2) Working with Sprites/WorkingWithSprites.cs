@@ -21,7 +21,6 @@ public class WorkingWithSprites : DemoBase {
 		AddChild(strawberry);
 		//Sprites default to 0,0 which is the center of the screen.  This will set it halfway between center and the left edge of the screen
 		strawberry.X = ViewportWidth/-4;
-		strawberry.ScaleX = .4f;
 		
 		//Registration points are the center point of the Sprite.  The Sprite will move, rotate, and scale around this point.
 		//Let's center the watermelon around its bottom-left corner:
@@ -33,8 +32,8 @@ public class WorkingWithSprites : DemoBase {
 		//you can extend the Sprite class just like in Flash.  
 		//SmartCherry is a Sprite subclass that rotates continuously.
 		//Instantiate Sprite subclasses via Library.New<Subclass Type>(new name);
-	//_smartCherry = Library.New<SmartCherry>("SmartCherryInstance");
-	//AddChild(_smartCherry);
+		_smartCherry = Library.New<SmartCherry>("SmartCherryInstance");
+		AddChild(_smartCherry);
 		
 		//Sprites can be added to each other.  This handler will add whatever was clicked to SmartCherry's display tree
 		watermelon.AddEventListener<MouseEvent>(MouseEvent.MOUSE_DOWN, AddToSmartCherry);
@@ -44,7 +43,7 @@ public class WorkingWithSprites : DemoBase {
 	private void AddToSmartCherry(MouseEvent e)
 	{
 		CinchSprite target = (CinchSprite)e.Target;
-	//_smartCherry.AddChild(target);
+		_smartCherry.AddChild(target);
 		
 		//and let's make them half-transparent
 		target.Alpha = .5f;

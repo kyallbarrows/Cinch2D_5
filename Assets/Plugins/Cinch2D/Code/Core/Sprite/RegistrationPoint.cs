@@ -7,15 +7,15 @@ namespace Cinch2D
 	/// Contains constant values for symbol RegistrationPoints.  See http://askville.amazon.com/Flash-registration-points/AnswerViewer.do?requestId=6721785
 	/// </summary>
 	public struct RegistrationPoint {
-		public static Vector2 TopLeft { get{ return new Vector2(0f, 1f); } private set{}}
-		public static Vector2 Top { get{ return new Vector2(0.5f, 1f); } private set{}}
-		public static Vector2 TopRight { get{ return new Vector2(1f, 1f); } private set{}}
-		public static Vector2 Left { get{ return new Vector2(0f, 0.5f); } private set{}}
-		public static Vector2 Center { get{ return new Vector2(0.5f, 0.5f); } private set{}}
-		public static Vector2 Right { get{ return new Vector2(1f, 0.5f); } private set{}}
-		public static Vector2 BottomLeft { get{ return new Vector2(0f, 0f); } private set{}}
-		public static Vector2 Bottom { get{ return new Vector2(0.5f, 0f); } private set{}}
-		public static Vector2 BottomRight { get{ return new Vector2(1f, 0f); } private set{}}
+		public static RegistrationPoint TopLeft { get{ return new RegistrationPoint(0f, 1f); } private set{}}
+		public static RegistrationPoint Top { get{ return new RegistrationPoint(0.5f, 1f); } private set{}}
+		public static RegistrationPoint TopRight { get{ return new RegistrationPoint(1f, 1f); } private set{}}
+		public static RegistrationPoint Left { get{ return new RegistrationPoint(0f, 0.5f); } private set{}}
+		public static RegistrationPoint Center { get{ return new RegistrationPoint(0.5f, 0.5f); } private set{}}
+		public static RegistrationPoint Right { get{ return new RegistrationPoint(1f, 0.5f); } private set{}}
+		public static RegistrationPoint BottomLeft { get{ return new RegistrationPoint(0f, 0f); } private set{}}
+		public static RegistrationPoint Bottom { get{ return new RegistrationPoint(0.5f, 0f); } private set{}}
+		public static RegistrationPoint BottomRight { get{ return new RegistrationPoint(1f, 0f); } private set{}}
 		
 		public float X;
 		public float Y;

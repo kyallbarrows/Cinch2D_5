@@ -60,9 +60,8 @@ namespace Cinch2D
 		}
 		
 		protected Texture2D _texture;
-		protected Sprite _sprite;
-		protected SpriteRenderer _spriteRenderer;
-
+		protected Rect _textureRect;
+		protected float _pixelsPerMeter;
 		protected RegistrationPoint _regPoint;	
 		
 		/// <summary>
@@ -80,12 +79,12 @@ namespace Cinch2D
 		/// <param name='regPoint'>
 		/// The registration point (center to pivot around).  Defaults to center.  You can use any of the constants defined on the RegistrationPoint struct, new() up one.
 		/// </param>
-		public static CinchSprite NewFromImage(string texturePath, float? pixelsPerMeter = null, Vector2? regPoint = null)
+		public static CinchSprite NewFromImage(string texturePath, float pixelsPerMeter = 0, RegistrationPoint? regPoint = null)
 		{
 			GameObject go = new GameObject(texturePath);
 			var sprite = go.AddComponent<CinchSprite>();
 			
-			sprite.InitFromImage(texturePath, pixelsPerMeter ?? 200f, regPoint);
+			sprite.InternalInitFromImage(texturePath, pixelsPerMeter, CinchOptions.DefaultShader, regPoint.GetValueOrDefault(RegistrationPoint.Center));
 			return sprite;
 		}
 		
@@ -95,12 +94,33 @@ namespace Cinch2D
 		/// <returns>
 		/// The new Sprite.
 		/// </returns>
-		public static CinchSprite NewFromSpriteSheet(string texturePath, float left, float top, float width, float height, float pixelsPerMeter = 0, Vector2? regPoint = null)
+		/// <param name='texturePath'>
+		/// Sprite sheet to build Sprite from.
+		/// </param>
+		/// <param name='left'>
+		/// Left side of sprite sheet coordinates, in pixels.
+		/// </param>
+		/// <param name='top'>
+		/// Top side of sprite sheet coordinates, in pixels.
+		/// </param>
+		/// <param name='width'>
+		/// Width of sprite sheet coordinates, in pixels.
+		/// </param>
+		/// <param name='height'>
+		/// Height of sprite sheet coordinates, in pixels.
+		/// </param>
+		/// <param name='pixelsPerMeter'>
+		/// Pixels per meter.  Specifying 100 with a 100x100 sprite rectangle will produce a 1x1 meter Sprite.  You can pass in CinchOptions.DefaultPixelsPerMeter to keep everything the same size.
+		/// </param>
+		/// <param name='regPoint'>
+		/// The registration point (center to pivot around).  Defaults to center.  You can use any of the constants defined on the RegistrationPoint struct, new() up one.
+		/// </param>
+		public static CinchSprite NewFromSpriteSheet(string texturePath, float left, float top, float width, float height, float pixelsPerMeter = 0, RegistrationPoint? regPoint = null)
 		{
 			GameObject go = new GameObject(texturePath);
 			var sprite = go.AddComponent<CinchSprite>();
-
-			sprite.InitFromImage (texturePath, pixelsPerMeter, regPoint, new Rect(left, top, width, height));
+			
+			sprite.InternalInitFromImage(texturePath, pixelsPerMeter, CinchOptions.DefaultShader, regPoint.GetValueOrDefault(RegistrationPoint.Center), new Rect(left, top, width, height));
 			return sprite;
 		}
 		
@@ -117,20 +137,207 @@ namespace Cinch2D
 			return sprite;
 		}
 
-		protected void InitFromImage (string texturePath, float pixelsPerMeter, Vector2? regPoint = null, Rect? rect = null)
+		protected void InitFromImage(string texturePath, float pixelsPerMeter = 0, RegistrationPoint? regPoint = null, Rect? rect = null)
 		{
-			_spriteRenderer = gameObject.AddComponent<SpriteRenderer> ();
+			InternalInitFromImage(texturePath, pixelsPerMeter, CinchOptions.DefaultShader, regPoint.GetValueOrDefault(RegistrationPoint.Center), rect);
+		}
 
-			_texture = TextureCache.GetCachedTexture (texturePath);
-			_sprite = Sprite.Create (_texture, 
-			                         rect ?? new Rect (0, 0, _texture.width-1, _texture.height-1), 
-			                         regPoint ?? RegistrationPoint.Center, 
-			                         pixelsPerMeter);
-			_spriteRenderer.sprite = _sprite;
+		private void InternalInitFromImage(string texturePath, float pixelsPerMeter, string shaderType, RegistrationPoint regPoint, Rect? rect = null)
+		{
+			if (pixelsPerMeter == 0)
+				pixelsPerMeter = CinchOptions.DefaultPixelsPerMeter;
+			
+			this._pixelsPerMeter = pixelsPerMeter;
+			_regPoint = regPoint;
+					
+			_texture = TextureCache.GetCachedTexture(texturePath);
+			_textureRect = rect.GetValueOrDefault(new Rect(0f, 0f, (float)_texture.width, (float)_texture.height));
+
+			//flip the y-axis
+			if (CinchOptions.UseTopLeftSpriteSheetCoordinates)
+			{
+				var h = _textureRect.height;
+				_textureRect.yMin = _texture.height - (_textureRect.yMin + _textureRect.height);
+				_textureRect.height = h;
+			}
+			
+			var scaledRect = new Rect(_textureRect.x/_texture.width, _textureRect.y/_texture.height, _textureRect.width/_texture.width, _textureRect.height/_texture.height);
+			
+			_originalMesh = new Mesh();
+			_originalMesh.name = "Scripted_Plane_New_Mesh";
+	        var fullWidth = _textureRect.width / pixelsPerMeter;
+	        var fullHeight = _textureRect.height / pixelsPerMeter;
+			var left = fullWidth * (0f-regPoint.X);
+			var right = fullWidth * (1f-regPoint.X);
+			var top = fullHeight * (0f-regPoint.Y);
+			var bottom = fullHeight * (1f-regPoint.Y);
+			var front = -.1f;
+			var flt = new Vector3(left,  top, front); 
+			var frt = new Vector3(right, top, front);
+			var frb = new Vector3(right, bottom, front); 
+			var flb = new Vector3(left,  bottom, front);
+					
+			_originalMesh.vertices = new Vector3[] {
+										flt, frt, frb, flb
+			};
+			
+			_originalMesh.uv = new Vector2[] {	
+				new Vector2 (scaledRect.xMin, scaledRect.yMin), 
+				new Vector2 (scaledRect.xMax, scaledRect.yMin), 
+				new Vector2 (scaledRect.xMax, scaledRect.yMax), 
+				new Vector2 (scaledRect.xMin, scaledRect.yMax)
+			};			
+			
+			_originalMesh.triangles = new int[] {
+				3 , 2 , 1 , 0 , 3 , 1
+			};
+			_originalMesh.RecalculateNormals();
+			
+			_meshFilter = gameObject.AddComponent<MeshFilter>();
+			_meshFilter.sharedMesh = _transformedMesh;
+			
+			var shader = ShaderCache.GetShader(shaderType);
+			_meshRenderer = gameObject.AddComponent<MeshRenderer>();
+			_meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+			_meshRenderer.receiveShadows = false;
+			_material = _meshRenderer.material;
+			_material.shader = shader;
+	        _material.mainTexture = _texture;
+			_material.color = new Color( 1f, 1f, 1f, 1f );
+			_material.mainTexture.wrapMode = TextureWrapMode.Clamp;
+			
+			if (Parent == null)
+				_meshRenderer.enabled = false; //default it to false until it gets added
+			
+			__UpdateMesh();
 		}
 		
-
-
+		protected Rect? _scale9Grid;
+		private Vector3[] _nineSliceVertices;
+		private float _nineSliceBottomInset;		//distance from top to top of nine-slice rectangle
+		private float _nineSliceTopInset;	//distance from bottom to bottom of nine-slice rectangle
+		private float _nineSliceLeftInset;		//distance from left to left side of nine-slice rectangle
+		private float _nineSliceRightInset;		//distance from right to right side of nine-slice rectangle
+		private float _nineSliceHorizontalLimit;//the farthest we can slide control points left or right
+		private float _nineSliceVerticalLimit;	//the farthest we can slide control points up or down
+		private static int[] _nineSliceLeftVertexIndices = {1, 5, 9, 13};
+		private static int[] _nineSliceRightVertexIndices = {2, 6, 10, 14};
+		private static int[] _nineSliceTopVertexIndices = {8, 9, 10, 11};
+		private static int[] _nineSliceBottomVertexIndices = {4, 5, 6, 7};
+		private float _nativeWidth;
+		private float _nativeHeight;
+		
+		/// <summary>
+		/// Sets the scale9 grid.  Currently, this operation cannot be undone (you can't just set it to null)
+		/// </summary>
+		/// <value>
+		/// The scale9 grid.  
+		/// NOTE: in keeping with Unity's positive-y-is-up coordinate system, yMin is the bottom value, yMax is the top
+		/// WARNING: don't go all crazy with the Scale9Grids.  They add a lot of overhead, and will slow down your app if used excessively.  
+		/// </value>
+		public virtual void SetScale9Grid(Rect rect)
+		{
+			_scale9Grid = rect;
+			if (_scale9Grid.HasValue)
+			{
+				_nativeWidth = _texture.width/_pixelsPerMeter;
+				_nativeHeight = _texture.height/_pixelsPerMeter;
+				
+				//rebuild the mesh
+				_nineSliceTopInset = _scale9Grid.GetValueOrDefault().y;
+				_nineSliceLeftInset = _scale9Grid.GetValueOrDefault().x;
+				_nineSliceBottomInset = 1 - _scale9Grid.GetValueOrDefault().yMax;
+				_nineSliceRightInset = 1 - _scale9Grid.GetValueOrDefault().xMax;
+				_nineSliceHorizontalLimit = Math.Abs(_nineSliceLeftInset) / ((Math.Abs(_nineSliceLeftInset) + Math.Abs(_nineSliceRightInset)));
+				_nineSliceVerticalLimit = Math.Abs(_nineSliceTopInset) / ((Math.Abs(_nineSliceTopInset) + Math.Abs(_nineSliceBottomInset)));
+				
+				RebuildMeshAsNineSlice();
+				//update everybody
+			}
+		}
+		
+		//public virtual Rect Scale9GridInPixels{...}
+		
+		private void RebuildMeshAsNineSlice()
+		{
+			if (!_scale9Grid.HasValue)
+				return;
+			
+			_originalMesh = new Mesh();
+			var rect = _scale9Grid.GetValueOrDefault();
+			var w = _texture.width / _pixelsPerMeter;
+			var h = _texture.height / _pixelsPerMeter;
+			var horizStops = new float[] {0, rect.xMin, rect.xMax, 1};
+			var vertStops = new float[] {0, rect.yMin, rect.yMax, 1};
+			Debug.Log ("YMin/Max: " + rect.yMin + "   " + rect.yMax);
+			var rowLength = horizStops.Length;
+			var columnHeight = vertStops.Length;
+			_nineSliceVertices = new Vector3[rowLength * columnHeight];
+			var uv = new Vector2[rowLength * columnHeight];
+			var triangles = new int[6 * (rowLength-1) * (columnHeight-1)];
+			var currTriangle = 0;
+			for (var x = 0; x < rowLength; x++){
+				for (var y = 0; y < columnHeight; y++){
+					var vertIndex = x + y*rowLength;
+					_nineSliceVertices[vertIndex] = new Vector3((horizStops[x] - _regPoint.X) * w, (vertStops[y] - _regPoint.Y) * h, 0f);
+					uv[vertIndex] = new Vector2(horizStops[x], vertStops[y]);
+					
+					Debug.Log ("Adding vertex: " + _nineSliceVertices[vertIndex] +  "  vertstop: " + vertStops[y]);
+					if (x < rowLength-1 && y < rowLength - 1)
+					{
+						triangles[currTriangle] = vertIndex + rowLength;		//one below
+						triangles[currTriangle+1] = vertIndex + rowLength + 1;	//one below, right
+						triangles[currTriangle+2] = vertIndex + 1;				//one right
+						triangles[currTriangle+3] = vertIndex;					//current
+						triangles[currTriangle+4] = vertIndex + rowLength;		//one below
+						triangles[currTriangle+5] = vertIndex + 1;				//one right
+						currTriangle += 6;
+					}			
+				}
+			}
+			
+			_originalMesh.vertices = _nineSliceVertices;
+			_originalMesh.uv = uv;
+			_originalMesh.triangles = triangles;
+			_originalMesh.RecalculateNormals();
+			
+			_texture.mipMapBias = -100f;
+			
+			__UpdateMesh();
+		}
+		
+		protected override void ScaleXHook()
+		{
+			if (!_scale9Grid.HasValue)
+				return;
+			
+			var newLeftX = _nativeWidth * (Math.Min (_nineSliceLeftInset / _scaleX, _nineSliceHorizontalLimit) - _regPoint.X);
+			var newRightX = _nativeWidth * (Math.Max (1 - _nineSliceRightInset / _scaleX, _nineSliceHorizontalLimit) - _regPoint.X);
+			for(var i=0; i<4; i++)
+			{
+				_nineSliceVertices[_nineSliceLeftVertexIndices[i]] = new Vector3(newLeftX, _nineSliceVertices[_nineSliceLeftVertexIndices[i]].y, 0);
+				_nineSliceVertices[_nineSliceRightVertexIndices[i]] = new Vector3(newRightX, _nineSliceVertices[_nineSliceRightVertexIndices[i]].y, 0);
+			}
+			_originalMesh.vertices = _nineSliceVertices;
+			_originalMesh.RecalculateNormals();
+		}
+		
+		protected override void ScaleYHook()
+		{
+			if (!_scale9Grid.HasValue)
+				return;
+			
+			var newTopY = _nativeHeight * (Math.Min (_nineSliceTopInset / _scaleY, _nineSliceVerticalLimit) - _regPoint.Y);
+			var newBottomY = _nativeHeight * (Math.Max (1 - _nineSliceBottomInset / _scaleY, _nineSliceVerticalLimit) - _regPoint.Y);
+			for(var i=0; i<4; i++)
+			{
+				_nineSliceVertices[_nineSliceBottomVertexIndices[i]] = new Vector3(_nineSliceVertices[_nineSliceBottomVertexIndices[i]].x, newTopY, 0);
+				_nineSliceVertices[_nineSliceTopVertexIndices[i]] = new Vector3(_nineSliceVertices[_nineSliceTopVertexIndices[i]].x, newBottomY, 0);
+			}
+			_originalMesh.vertices = _nineSliceVertices;
+			_originalMesh.RecalculateNormals();
+		}
+		
 		/// <summary>
 		/// Creates a circular mesh with the supplied radius and number of sections.  Useful in conjunction with DisplayObjectContainer.SetMouseArea()
 		/// </summary>
@@ -220,31 +427,6 @@ namespace Cinch2D
 				__UpdateMesh();
 				NotifyParentMeshInvalid();
 			}
-		}
-
-		protected override void HandleMeshTransform(Matrix4x4 matrix){
-			gameObject.transform.position = ExtractPosition(matrix);
-			gameObject.transform.localScale = ExtractScale(matrix);
-//			_spriteRenderer.transform.position = transform.MultiplyPoint3x4(new Vector3(0, 0, 0));
-//			Debug.Log("HandleMeshTransform " + _z);
-		}
-	
-		private Vector3 ExtractPosition(Matrix4x4 matrix)
-	    {
-	        Vector3 position;
-	        position.x = matrix.m03;
-	        position.y = matrix.m13;
-	        position.z = _z;
-	        return position;
-	    }
-
-		private Vector3 ExtractScale(Matrix4x4 matrix)
-	    {
-	        Vector3 scale;
-	        scale.x = new Vector4(matrix.m00, matrix.m10, matrix.m20, matrix.m30).magnitude;
-	        scale.y = new Vector4(matrix.m01, matrix.m11, matrix.m21, matrix.m31).magnitude;
-	        scale.z = new Vector4(matrix.m02, matrix.m12, matrix.m22, matrix.m32).magnitude;
-	        return scale;
-	    }
+		}	
 	}
 }

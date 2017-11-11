@@ -218,9 +218,9 @@ namespace Cinch2D
 			
 			var horizCenterLine = _fontMedian * _fontScale;
 			if (_textAnchor == TextAnchor.LowerLeft || _textAnchor == TextAnchor.LowerCenter || _textAnchor == TextAnchor.LowerRight)
-				horizCenterLine = _fontBaseline * _fontScale;
-			else if (_textAnchor == TextAnchor.UpperLeft || _textAnchor == TextAnchor.UpperCenter || _textAnchor == TextAnchor.UpperRight)
 				horizCenterLine = _fontCapHeight * _fontScale;
+			else if (_textAnchor == TextAnchor.UpperLeft || _textAnchor == TextAnchor.UpperCenter || _textAnchor == TextAnchor.UpperRight)
+				horizCenterLine = _fontBaseline * _fontScale;
 			
 			var vertices = new List<Vector3>();
 			var uv = new List<Vector2>();
@@ -339,15 +339,6 @@ namespace Cinch2D
 			get {	return base.Height; }
 			set {	base.Height = value; }
 		}
-
-		protected override void HandleMeshTransform(Matrix4x4 transform){
-			if (_meshFilter != null && _originalMesh != null){
-				var meshCombine = new CombineInstance[1];
-		        meshCombine[0].mesh = _originalMesh;
-		        meshCombine[0].transform = transform;
-		        _transformedMesh.CombineMeshes(meshCombine);
-				_meshFilter.sharedMesh = _transformedMesh;
-			}
-		}
+		
 	}
 }

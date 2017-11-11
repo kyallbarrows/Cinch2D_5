@@ -79,7 +79,6 @@ namespace Cinch2D
 		}
 		
 		public void Update () {
-			//just started
 			if (_mouseOverObject == null)
 				_mouseOverObject = GetObjectUnderMouse();
 			
