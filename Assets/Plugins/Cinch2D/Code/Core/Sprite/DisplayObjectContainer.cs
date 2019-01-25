@@ -99,8 +99,11 @@ namespace Cinch2D
 		/// Called from Awake.  Exists because it's hard to remember to call base.Awake() every time you override it, and bad things happen when you do.
 		/// </summary>
 		public virtual void OnAwake(){}
-		
-		public virtual void __InternalOnEnterFrame(){}
+
+		public virtual void __InternalOnEnterFrame()
+		{
+			__StageAvailable();
+		}
 		/// <summary>
 		/// Called on every Update call, unless Clock is paused.
 		/// </summary>
@@ -338,6 +341,8 @@ namespace Cinch2D
 			
 			if (Stage != null)
 			{
+				__StageAvailable();
+				
 				if (MouseEnabled)
 					MouseInput.Instance.__AddMouseEnabledObject(this);
 				
@@ -348,7 +353,21 @@ namespace Cinch2D
 					c.__Added ();
 			}
 		}
-		
+
+		protected bool _firedStageAvailable = false;
+		protected virtual void __StageAvailable()
+		{
+			if (!_firedStageAvailable)
+			{
+				_firedStageAvailable = true;
+				StageAvailable();
+			}
+		}
+
+		public virtual void StageAvailable()
+		{
+		}
+
 		/// <summary>
 		/// Called when 1) object is added to Stage 2)object is added to an object that is in Stage's descendants 3) the object that this object is a child of is added to Stage.
 		/// </summary>
@@ -369,11 +388,13 @@ namespace Cinch2D
 		/// <value>
 		/// The stage, if object is in Stage's display hierarchy.  Otherwise returns null.
 		/// </value>
-		public Stage Stage { get{
-				if (Parent == null) return null;
-				if (Parent is Stage) return (Stage)Parent;
-				return Parent.Stage;
-			} }
+		public Stage Stage { get
+		{
+			if (__IsStage()) return (Stage)this;
+			if (Parent == null) return null;
+			if (Parent is Stage) return (Stage)Parent;
+			return Parent.Stage;
+		} }
 		public bool __IsStage() { return this is Stage; }
 		
 		protected Mesh _originalMesh;
@@ -754,6 +775,7 @@ namespace Cinch2D
 			_transformedMesh = new Mesh();
 			_combinedMesh = new Mesh();
 			
+			__StageAvailable();
 			OnAwake();
 		}
 		
