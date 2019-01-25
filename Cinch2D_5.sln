@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cinch2D_5", "Assembly-CSharp-firstpass.csproj", "{3039FFA8-9613-3C8F-2F80-C38A0D6F398D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{3039FFA8-9613-3C8F-2F80-C38A0D6F398D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cinch2D_5", "Assembly-CSharp.csproj", "{17FE5B0B-12C1-F7A3-DF6D-228F322F2DA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{17FE5B0B-12C1-F7A3-DF6D-228F322F2DA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

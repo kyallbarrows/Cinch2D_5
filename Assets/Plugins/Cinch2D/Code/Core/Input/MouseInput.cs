@@ -6,6 +6,12 @@ using System.Linq;
 
 namespace Cinch2D
 {
+	public class TouchObject
+	{
+		public DisplayObjectContainer Object;
+		public Boolean Updated = false;
+	}
+
 	/// <summary>
 	/// Internal class, no usable public methods.
 	/// </summary>
@@ -15,6 +21,8 @@ namespace Cinch2D
 		private Vector2 _lastMousePos;
 		private DisplayObjectContainer _mouseDownObject;
 		private DisplayObjectContainer _mouseOverObject;
+
+		private List<TouchObject> _touchOverObjects = new List<TouchObject>();
 		
 		protected List<DisplayObjectContainer> _mouseEnabledObjects;
 		protected Dictionary<Guid, DisplayObjectContainer> _mouseEnabledObjectIds;
@@ -148,25 +156,77 @@ namespace Cinch2D
 			_mouseDown = mouseDown;
 			_lastMousePos = mousePos;
 			_mouseOverObject = newMouseOverObject;
+
+			if (Input.touchCount > 0)
+			{
+				foreach (var touchObject in _touchOverObjects)
+				{
+					touchObject.Updated = false;
+				}
+				
+				foreach (var touch in Input.touches)
+				{
+					Vector2 touchStagePos = TouchPositionToStagePosition(touch.position);
+					var touchObject = GetObjectUnderMouse(touchStagePos);
+					if (touchObject == null)
+						continue;
+
+					var touchLocalPos = touchObject.GlobalToLocal(touchStagePos);
+					string eventName = "";
+					
+					switch (touch.phase)
+					{
+						case TouchPhase.Began:
+							eventName = MouseEvent.TOUCH_DOWN;
+							break;
+						case TouchPhase.Ended:
+						case TouchPhase.Canceled:
+							eventName = MouseEvent.TOUCH_UP;
+							break;
+						case TouchPhase.Moved:
+						case TouchPhase.Stationary:
+							//if (!_touchOverObjects.Contains(touchObject))  <-- wont work, make it a dictionary using touchObject's guid
+							eventName = MouseEvent.TOUCH_MOVE;
+							break;
+						default:
+							eventName = MouseEvent.TOUCH_MOVE;
+							break;
+					}
+					
+					touchObject.DispatchEvent(new MouseEvent(eventName, touchObject, touchLocalPos, touchStagePos));
+				}
+			}
 		}
-		
-		
+
+
+		private Vector2 TouchPositionToStagePosition(Vector2 pos)
+		{
+			var mousePos = Stage.Instance.TheCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, pos.y, 0));
+			return (new Vector2(mousePos.x, mousePos.y) - Stage.Instance.__GetOffset());
+		}
+
 		private DisplayObjectContainer GetObjectUnderMouse()
 		{
 			//if the mouse isn't
 			var x = Stage.Instance.MouseX;
 			var y = Stage.Instance.MouseY;
 			var p = new Vector2(x, y);
-			
+
+			return GetObjectUnderMouse(p);
+		}
+		
+		private DisplayObjectContainer GetObjectUnderMouse(Vector2 pos)
+		{
 			for (var i=0; i<_mouseEnabledObjects.Count; i++)
 			{
 				if (_mouseEnabledObjects[i].__Clickable && 
-					_mouseEnabledObjects[i].__Level1HitTest(p) &&
-					_mouseEnabledObjects[i].PointIsInMouseArea(p))
+				    _mouseEnabledObjects[i].__Level1HitTest(pos) &&
+				    _mouseEnabledObjects[i].PointIsInMouseArea(pos))
 					return _mouseEnabledObjects[i];
 			}
 			
 			return null;
 		}
+
 	}
 }

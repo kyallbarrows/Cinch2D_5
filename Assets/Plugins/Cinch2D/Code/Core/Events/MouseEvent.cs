@@ -13,6 +13,14 @@ namespace Cinch2D
 		public const string MOUSE_OVER = "mosueevent.mouseover";
 		public const string MOUSE_OUT = "mosueevent.mouseout";
 		
+		public const string TOUCH_OUT = "mosueevent.touchout";
+		public const string TOUCH_IN = "mosueevent.touchin";
+		public const string TOUCH_DOWN = "mosueevent.touchdown";
+		public const string TOUCH_UP = "mosueevent.touchup";
+		public const string TOUCH_MOVE = "mosueevent.touchmove";
+		
+		
+		
 		public Vector2 LocalPos;	/*! Mouse position relative to .CurrentTarget */
 		public Vector2 StagePos;	/*! Mouse position relative to Stage */
 		
